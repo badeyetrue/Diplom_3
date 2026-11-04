@@ -58,3 +58,5 @@ class TestFeedPage:
         
         driver.get(Urls.FEED_URL)
         assert feed_page.is_order_in_progress(order_number)
+
+# Проверка UI

@@ -55,3 +55,5 @@ class TestMainFunctionality:
         # Так как первая карточка — булка, счётчик увеличивается на 2. Проверяем корректный шаг изменений.
         assert new_counter > initial_counter
 
+
+# �������� UI

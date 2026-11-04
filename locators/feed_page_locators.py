@@ -10,3 +10,5 @@ class FeedPageLocators:
     ORDER_BOARD = (By.XPATH, "//div[contains(@class, 'OrderFeed_orderBoard__') or contains(@class, 'orderBoard')]")
     # Список элементов в колонке "В работе" (на случай, если проверяющий требует строго этот элемент)
     IN_PROGRESS_ORDERS = (By.XPATH, "//ul[contains(@class, 'OrderFeed_orderListReady__') or contains(@class, 'orderList')]//li")
+
+# �������� UI
