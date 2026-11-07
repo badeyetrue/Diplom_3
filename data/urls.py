@@ -5,3 +5,5 @@ class Urls:
     # API эндпоинты для фикстур
     API_CREATE_USER = f"{BASE_URL}/api/auth/register"
     API_DELETE_USER = f"{BASE_URL}/api/auth/user"
+
+# �������� UI

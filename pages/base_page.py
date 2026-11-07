@@ -29,3 +29,5 @@ class BasePage:
             lambda d: d.find_element(*locator).text != old_text,
             message="Текст в элементе не изменился"
         )
+
+# �������� UI

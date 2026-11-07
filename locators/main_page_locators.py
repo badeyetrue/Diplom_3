@@ -19,3 +19,5 @@ class MainPageLocators:
     # Оформление заказа
     ORDER_BTN = (By.XPATH, "//button[contains(@class, 'button_button_type_primary__')]")
     ORDER_MODAL_NUMBER = (By.XPATH, "//h2[contains(@class, 'Modal_modal__title_shadow__')]")
+
+# �������� UI

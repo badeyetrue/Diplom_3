@@ -46,3 +46,5 @@ class FeedPage(BasePage):
             return True
         except Exception:
             return False
+
+# Проверка UI

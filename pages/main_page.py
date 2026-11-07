@@ -133,3 +133,5 @@ class MainPage(BasePage):
         order_num = self.find_element(MainPageLocators.ORDER_MODAL_NUMBER).text.strip()
         return order_num
 
+
+# Проверка UI
