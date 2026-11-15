@@ -6,4 +6,3 @@ class Urls:
     API_CREATE_USER = f"{BASE_URL}/api/auth/register"
     API_DELETE_USER = f"{BASE_URL}/api/auth/user"
 
-# Проверка UI

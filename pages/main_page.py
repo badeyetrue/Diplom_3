@@ -1,18 +1,25 @@
 import allure
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from data.urls import Urls
 from pages.base_page import BasePage
 from locators.main_page_locators import MainPageLocators
 
+
 class MainPage(BasePage):
-    
+
+    @allure.step("Открыть главную страницу «Конструктор»")
+    def open_main_page(self):
+        self.open(Urls.BASE_URL)
+
     @allure.step("Кликаем на кнопку 'Конструктор'")
     def click_constructor(self):
-        self.find_element(MainPageLocators.CONSTRUCTOR_BTN).click()
+        self.click_element(MainPageLocators.CONSTRUCTOR_BTN)
 
     @allure.step("Кликаем на кнопку 'Лента Заказов'")
     def click_feed(self):
-        self.find_element(MainPageLocators.FEED_BTN).click()
+        self.click_element(MainPageLocators.FEED_BTN)
 
     @allure.step("Проверяем отображение заголовка Конструктора")
     def is_constructor_title_displayed(self):
@@ -20,31 +27,25 @@ class MainPage(BasePage):
 
     @allure.step("Кликаем по первому ингредиенту")
     def click_first_ingredient(self):
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait
-        
         element = WebDriverWait(self.driver, 15).until(
             EC.visibility_of_element_located(MainPageLocators.INGREDIENT_CARD)
         )
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-        # Кликаем через JavaScript, минуя ограничения ActionChains/нативных кликов Selenium
         self.driver.execute_script("arguments[0].click();", element)
 
     @allure.step("Проверяем отображение модального окна")
     def is_modal_displayed(self):
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait
         try:
             WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(MainPageLocators.MODAL_WINDOW)
             )
             return True
-        except:
+        except TimeoutException:
             return False
 
     @allure.step("Закрываем модальное окно кликом на крестик")
     def close_modal(self):
-        self.find_element(MainPageLocators.MODAL_CLOSE_BTN).click()
+        self.click_element(MainPageLocators.MODAL_CLOSE_BTN)
 
     @allure.step("Ожидаем закрытия модального окна")
     def wait_modal_to_disappear(self):
@@ -54,22 +55,18 @@ class MainPage(BasePage):
     def get_first_ingredient_counter(self):
         try:
             return int(self.find_element(MainPageLocators.INGREDIENT_COUNTER, time=3).text)
-        except Exception:
+        except TimeoutException:
             return 0
 
     @allure.step("Перетаскиваем ингредиент в корзину заказа")
     def add_ingredient_to_order(self):
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait
-        
         source = WebDriverWait(self.driver, 15).until(
             EC.visibility_of_element_located(MainPageLocators.INGREDIENT_CARD)
         )
         target = WebDriverWait(self.driver, 15).until(
             EC.visibility_of_element_located(MainPageLocators.BASKET_ZONE)
         )
-        
-        # JS-скрипт для симуляции HTML5 Drag and Drop
+
         js_drag_and_drop = """
         function createEvent(typeOfEvent) {
             var event = document.createEvent("CustomEvent");
@@ -100,38 +97,20 @@ class MainPage(BasePage):
 
     @allure.step("Оформить заказ")
     def place_order(self):
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait
-        import time
-        
-        # Ждем, пока кнопка станет доступной для клика
         btn = WebDriverWait(self.driver, 15).until(
             EC.element_to_be_clickable(MainPageLocators.ORDER_BTN)
         )
-        time.sleep(0.5)  # Небольшая пауза, чтобы Vue/React обновил состояние кнопки после Drag-and-Drop
-        # Кликаем через надежный JavaScript-клик
         self.driver.execute_script("arguments[0].click();", btn)
 
     @allure.step("Получаем номер созданного заказа из модального окна")
     def get_order_number(self):
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.support.ui import WebDriverWait
-        import time
-        
-        # Ждем появления самого элемента до 20 секунд (защита от ReadTimeout бэкенда)
         WebDriverWait(self.driver, 20).until(
             EC.visibility_of_element_located(MainPageLocators.ORDER_MODAL_NUMBER)
         )
-        
-        # Ждем, пока дефолтные "9999" изменятся на реальный номер
+
         WebDriverWait(self.driver, 20).until(
-            lambda d: d.find_element(*MainPageLocators.ORDER_MODAL_NUMBER).text != "9999" and 
-                     d.find_element(*MainPageLocators.ORDER_MODAL_NUMBER).text.strip() != ""
+            lambda d: d.find_element(*MainPageLocators.ORDER_MODAL_NUMBER).text != "9999" and
+                      d.find_element(*MainPageLocators.ORDER_MODAL_NUMBER).text.strip().isdigit()
         )
-        
-        time.sleep(0.5) # Даем тексту окончательно зафиксироваться
-        order_num = self.find_element(MainPageLocators.ORDER_MODAL_NUMBER).text.strip()
-        return order_num
 
-
-# �������� UI
+        return self.find_element(MainPageLocators.ORDER_MODAL_NUMBER).text.strip()

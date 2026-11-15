@@ -1,11 +1,16 @@
 import allure
-import time
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
+from data.urls import Urls
 from pages.base_page import BasePage
 from locators.feed_page_locators import FeedPageLocators
 
+
 class FeedPage(BasePage):
+
+    @allure.step("Открыть страницу «Лента заказов»")
+    def open_feed_page(self):
+        self.open(Urls.FEED_URL)
 
     @allure.step("Проверяем отображение заголовка Ленты заказов")
     def is_feed_title_displayed(self):
@@ -27,24 +32,19 @@ class FeedPage(BasePage):
     def wait_today_orders_count_to_change(self, old_value):
         return self.wait_text_to_change(FeedPageLocators.TODAY_COUNTER, str(old_value))
 
-    @allure.step("Проверяем наличие номера заказа на странице")
+    @allure.step("Проверяем наличие номера заказа {order_number} в разделе «В работе»")
     def is_order_in_progress(self, order_number):
-        # Получаем чистый номер ("1033") и шестизначный формат ("001033")
         clean_number = order_number.replace("#", "").strip()
         formatted_number = clean_number.zfill(6)
-        
-        # Даем WebSocket-ленте 3 секунды обновиться после перехода
-        time.sleep(3)
-        
+
         try:
-            # Ищем номер просто по всему тексту страницы (внутри тега body)
             WebDriverWait(self.driver, 20).until(
-                lambda d: formatted_number in d.find_element(By.TAG_NAME, "body").text or 
-                         clean_number in d.find_element(By.TAG_NAME, "body").text,
-                message=f"Номер заказа {clean_number} не найден на странице Ленты"
+                lambda d: any(
+                    formatted_number in item.text or clean_number in item.text
+                    for item in d.find_elements(*FeedPageLocators.IN_PROGRESS_ORDERS)
+                ),
+                message=f"Номер заказа {formatted_number} не появился в разделе «В работе»"
             )
             return True
-        except Exception:
+        except TimeoutException:
             return False
-
-# �������� UI
