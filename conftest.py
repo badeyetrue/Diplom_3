@@ -56,3 +56,5 @@ def create_user_and_auth(driver):
         requests.delete(Urls.API_DELETE_USER, headers={"Authorization": access_token})
 
 
+
+
